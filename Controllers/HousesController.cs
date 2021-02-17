@@ -78,12 +78,8 @@ namespace GregsList.Controllers
     {
       try
       {
-        House houseToRemove = FAKEDB.Houses.Find(c => c.Id == id);
-        if (FAKEDB.Houses.Remove(houseToRemove))
-        {
-          return Ok("House Removed");
-        }
-        throw new System.Exception("invalid id");
+        _hs.Delete(id);
+        return Ok("deleted");
       }
       catch (System.Exception err)
       {
