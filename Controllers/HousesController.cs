@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using GregsList.db;
 using GregsList.Models;
+using GregsList.Services;
 
 namespace GregsList.Controllers
 {
@@ -9,12 +10,19 @@ namespace GregsList.Controllers
   [Route("api/[controller]")]
   public class HousesController : ControllerBase
   {
+
+    private readonly HousesService _hs;
+    public HousesController(HousesService hs)
+    {
+      _hs = hs;
+    }
+
     [HttpGet]
     public ActionResult<IEnumerable<House>> Get()
     {
       try
       {
-        return Ok(FAKEDB.Houses);
+        return Ok(_hs.Get());
       }
       catch (System.Exception err)
       {
@@ -27,7 +35,7 @@ namespace GregsList.Controllers
     {
       try
       {
-        House houseToReturn = FAKEDB.Houses.Find(c => c.Id == id);
+        House houseToReturn = _hs.Get(id);
         return Ok(houseToReturn);
       }
       catch (System.Exception err)
@@ -41,7 +49,7 @@ namespace GregsList.Controllers
     {
       try
       {
-        FAKEDB.Houses.Add(newHouse);
+        House house = _hs.Create(newHouse);
         return Ok(newHouse);
       }
       catch (System.Exception err)
@@ -55,36 +63,9 @@ namespace GregsList.Controllers
     {
       try
       {
-        House currentHouse = FAKEDB.Houses.Find(c => c.Id == id);
-        if (editHouse.Bedrooms != null)
-        {
-          currentHouse.Bedrooms = editHouse.Bedrooms;
-        }
-        if (editHouse.Bathrooms != null)
-        {
-          currentHouse.Bathrooms = editHouse.Bathrooms;
-        }
-        if (editHouse.Levels != null)
-        {
-          currentHouse.Levels = editHouse.Levels;
-        }
-        if (editHouse.Year != null)
-        {
-          currentHouse.Year = editHouse.Year;
-        }
-        if (editHouse.Price != null)
-        {
-          currentHouse.Price = editHouse.Price;
-        }
-        if (editHouse.Description != null)
-        {
-          currentHouse.Description = editHouse.Description;
-        }
-        if (editHouse.ImgUrl != null)
-        {
-          currentHouse.ImgUrl = editHouse.ImgUrl;
-        }
-        return currentHouse;
+        editHouse.Id = id;
+        House house = _hs.Edit(editHouse);
+        return Ok(house);
       }
       catch (System.Exception err)
       {

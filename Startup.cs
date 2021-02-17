@@ -28,6 +28,8 @@ namespace GregsList
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddTransient<CarsService>();
+      services.AddTransient<HousesService>();
+      services.AddTransient<JobsService>();
 
       services.AddControllers();
       services.AddSwaggerGen(c =>

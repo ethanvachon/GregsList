@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using GregsList.db;
 using GregsList.Models;
+using GregsList.Services;
 
 namespace GregsList.Controllers
 {
@@ -9,12 +10,19 @@ namespace GregsList.Controllers
   [Route("api/[controller]")]
   public class JobsController : ControllerBase
   {
+
+    private readonly JobsService _js;
+    public JobsController(JobsService js)
+    {
+      _js = js;
+    }
+
     [HttpGet]
     public ActionResult<IEnumerable<Job>> Get()
     {
       try
       {
-        return Ok(FAKEDB.Jobs);
+        return Ok(_js.Get());
       }
       catch (System.Exception err)
       {
@@ -27,7 +35,7 @@ namespace GregsList.Controllers
     {
       try
       {
-        Job jobToReturn = FAKEDB.Jobs.Find(c => c.Id == id);
+        Job jobToReturn = _js.Get(id);
         return Ok(jobToReturn);
       }
       catch (System.Exception err)
@@ -41,8 +49,8 @@ namespace GregsList.Controllers
     {
       try
       {
-        FAKEDB.Jobs.Add(newJob);
-        return Ok(newJob);
+        Job job = _js.Create(newJob);
+        return Ok(job);
       }
       catch (System.Exception err)
       {
@@ -55,28 +63,9 @@ namespace GregsList.Controllers
     {
       try
       {
-        Job currentJob = FAKEDB.Jobs.Find(c => c.Id == id);
-        if (editJob.Company != null)
-        {
-          currentJob.Company = editJob.Company;
-        }
-        if (editJob.JobTitle != null)
-        {
-          currentJob.JobTitle = editJob.JobTitle;
-        }
-        if (editJob.Hours != null)
-        {
-          currentJob.Hours = editJob.Hours;
-        }
-        if (editJob.Rate != null)
-        {
-          currentJob.Rate = editJob.Rate;
-        }
-        if (editJob.Description != null)
-        {
-          currentJob.Description = editJob.Description;
-        }
-        return currentJob;
+        editJob.Id = id;
+        Job job = _js.Edit(editJob);
+        return Ok(job);
       }
       catch (System.Exception err)
       {
@@ -89,12 +78,8 @@ namespace GregsList.Controllers
     {
       try
       {
-        Job jobToRemove = FAKEDB.Jobs.Find(c => c.Id == id);
-        if (FAKEDB.Jobs.Remove(jobToRemove))
-        {
-          return Ok("Job Removed");
-        }
-        throw new System.Exception("invalid id");
+        _js.Delete(id);
+        return Ok("deleted");
       }
       catch (System.Exception err)
       {

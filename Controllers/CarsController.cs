@@ -65,7 +65,7 @@ namespace GregsList.Controllers
       {
         editCar.Id = id;
         Car car = _cs.Edit(editCar);
-        return car;
+        return Ok(car);
       }
       catch (System.Exception err)
       {
