@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using GregsList.db;
 using GregsList.Models;
+using GregsList.Services;
 
 namespace GregsList.Controllers
 {
@@ -9,12 +10,19 @@ namespace GregsList.Controllers
   [Route("api/[controller]")]
   public class CarsController : ControllerBase
   {
+
+    private readonly CarsService _cs;
+    public CarsController(CarsService cs)
+    {
+      _cs = cs;
+    }
+
     [HttpGet]
     public ActionResult<IEnumerable<Car>> Get()
     {
       try
       {
-        return Ok(FAKEDB.Cars);
+        return Ok(_cs.Get());
       }
       catch (System.Exception err)
       {
@@ -27,8 +35,8 @@ namespace GregsList.Controllers
     {
       try
       {
-        Car carToReturn = FAKEDB.Cars.Find(c => c.Id == id);
-        return Ok(carToReturn);
+        Car car = _cs.Get(id);
+        return Ok(car);
       }
       catch (System.Exception err)
       {
@@ -41,7 +49,7 @@ namespace GregsList.Controllers
     {
       try
       {
-        FAKEDB.Cars.Add(newCar);
+        Car car = _cs.Create(newCar);
         return Ok(newCar);
       }
       catch (System.Exception err)
@@ -55,32 +63,9 @@ namespace GregsList.Controllers
     {
       try
       {
-        Car currentCar = FAKEDB.Cars.Find(c => c.Id == id);
-        if (editCar.Make != null)
-        {
-          currentCar.Make = editCar.Make;
-        }
-        if (editCar.Model != null)
-        {
-          currentCar.Model = editCar.Model;
-        }
-        if (editCar.Year != null)
-        {
-          currentCar.Year = editCar.Year;
-        }
-        if (editCar.Price != null)
-        {
-          currentCar.Price = editCar.Price;
-        }
-        if (editCar.Description != null)
-        {
-          currentCar.Description = editCar.Description;
-        }
-        if (editCar.ImgUrl != null)
-        {
-          currentCar.ImgUrl = editCar.ImgUrl;
-        }
-        return currentCar;
+        editCar.Id = id;
+        Car car = _cs.Edit(editCar);
+        return car;
       }
       catch (System.Exception err)
       {
@@ -93,12 +78,8 @@ namespace GregsList.Controllers
     {
       try
       {
-        Car carToRemove = FAKEDB.Cars.Find(c => c.Id == id);
-        if (FAKEDB.Cars.Remove(carToRemove))
-        {
-          return Ok("Car Removed");
-        }
-        throw new System.Exception("invalid id");
+        _cs.Delete(id);
+        return Ok("deleted");
       }
       catch (System.Exception err)
       {
